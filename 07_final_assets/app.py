@@ -12,6 +12,7 @@ Run from the project root:
 """
 import os
 import sys
+from contextlib import contextmanager
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -28,19 +29,29 @@ from cc2_app_data import RHI_WEIGHTS, RHI_COMPS, RHI_LABELS
 st.set_page_config(page_title="360training · Reputation Intelligence", layout="wide",
                    initial_sidebar_state="expanded", page_icon="📊")
 
-# ============================================================ styling (monochrome grey-blue)
+# ============================================================ styling (monochrome gray-blue)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-:root{ --accent:#4e42e4; --ink:#1d1d25; --ink2:#2c303b; --mut:#3b4049; --line:#d2d2d8; }
+:root{ --accent:#4e42e4; --ink:#1d1d25; --ink2:#2c303b; --mut:#3b4049; --soft:#5f6470; --line:#d2d2d8;
+       --card:#f4f4f6; --raise:0 1px 2px rgba(20,20,28,.06), 0 6px 18px -6px rgba(20,20,28,.16); }
 html, body, [class*="css"], .stMarkdown, p, span, label, div, input, button{
   font-family:'Inter',-apple-system,system-ui,sans-serif; color:var(--ink); }
 .block-container { padding-top:1.4rem; padding-bottom:2.5rem; max-width:1280px; }
-/* light boxes (#efeff0) on the neutral grey canvas */
-div[data-testid="stVerticalBlockBorderWrapper"]{
-  background:#efeff0; border:1px solid #dadadf !important; border-radius:10px;
-  box-shadow:0 1px 2px rgba(20,20,28,.05), 0 2px 6px rgba(20,20,28,.04);
-}
+/* cards — Streamlit 1.58's st.container(border=True) is a bare stVerticalBlock with no styleable
+   testid, so each card is tagged with a hidden .cardmark/.featmark and the :has() rule keys off it
+   (verified to select ONLY the bordered card). Clearly lighter than the #c9c9cf canvas + real lift. */
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .cardmark),
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .featmark){
+  background:#f3f3f6 !important; border:1px solid #c0c0ca !important; border-radius:12px !important;
+  box-shadow:0 1px 2px rgba(20,20,28,.07), 0 12px 28px -10px rgba(20,20,28,.28) !important; }
+[data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .featmark){
+  background:#e7e6fb !important; border-color:#c2bdf3 !important;
+  box-shadow:0 1px 2px rgba(20,20,28,.07), 0 14px 30px -10px rgba(78,66,228,.32) !important; }
+/* ⓘ help tooltip — light panel so it reads off the grey body, not a dark blob */
+[data-testid="stTooltipContent"]{ background:#ffffff !important; color:#1d1d25 !important;
+  border:1px solid #c9c9d2 !important; border-radius:8px !important;
+  box-shadow:0 8px 24px -6px rgba(20,20,28,.32) !important; font-size:.86rem !important; }
 /* headings — bold sans, near-black */
 h1,h2,h3{ color:var(--ink); }
 h1{ font-weight:800; letter-spacing:-.022em; }
@@ -56,11 +67,22 @@ h3{ font-weight:700; font-size:1.06rem; letter-spacing:-.005em; }
 .hero-title{ font-weight:800; font-size:2.45rem; line-height:1.08; letter-spacing:-.025em;
              color:var(--ink); margin:.1rem 0 .6rem; max-width:930px; }
 .hero-sub{ color:var(--ink2); font-size:1.04rem; line-height:1.55; max-width:880px; font-weight:400; }
-/* tabs — mono */
-div[data-baseweb="tab-list"]{ gap:8px; border-bottom:1px solid #bdbdc4; }
-button[data-baseweb="tab"]{ font-family:'IBM Plex Mono',monospace; font-size:.82rem; letter-spacing:.02em;
-      font-weight:500; color:var(--mut); }
-button[data-baseweb="tab"][aria-selected="true"]{ color:var(--accent); }
+/* header signal chips — wrappers around Measured / Estimate / live */
+.hchips{ margin-top:.7rem; display:flex; flex-wrap:wrap; gap:.45rem; align-items:center; }
+.hdr-chip{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.02em; color:#34384a;
+           background:var(--card); border:1px solid #c7c7cf; border-radius:999px; padding:.22rem .7rem;
+           box-shadow:0 1px 2px rgba(20,20,28,.06); }
+.hdr-chip b{ color:var(--ink); font-weight:700; }
+.hdr-chip.live{ background:#ecebfb; border-color:#cdc9f6; color:var(--accent); font-weight:600; }
+/* tabs — bordered, lighter-gray pills with a clear selected state */
+div[data-baseweb="tab-list"]{ gap:4px; border-bottom:1px solid #b4b4bc; padding-bottom:.1rem; }
+button[data-baseweb="tab"]{ font-family:'IBM Plex Mono',monospace; font-size:.78rem; letter-spacing:.01em;
+      font-weight:500; color:var(--mut); background:#e3e3e8 !important; border:1px solid #c2c2cb !important;
+      border-bottom:none !important; border-radius:8px 8px 0 0 !important; padding:.3rem .62rem !important;
+      margin-bottom:-1px; }
+button[data-baseweb="tab"]:hover{ background:#ededf1 !important; color:var(--ink); }
+button[data-baseweb="tab"][aria-selected="true"]{ color:var(--accent); background:var(--card) !important;
+      border-color:#b4b4bc !important; box-shadow:0 -2px 0 var(--accent) inset; font-weight:600; }
 div[data-baseweb="tab-highlight"]{ background-color:var(--accent) !important; }
 /* metric cards — mono label + big mono number */
 div[data-testid="stMetric"]{ padding:.15rem .25rem; }
@@ -75,25 +97,56 @@ div[data-testid="stMetricDelta"]{ font-family:'IBM Plex Mono',monospace; color:#
 .chip.measured{ background:var(--ink); color:#fff; }
 .chip.estimate{ background:transparent; color:var(--mut); border:1px solid #aeaeb8; }
 .chip.recommended{ background:#e7e6fb; color:var(--accent); border:1px solid #cdc9f6; }
-/* boxes/panels */
+/* boxes/panels — all raised + clearly off the canvas */
 .takeaway{ border-left:3px solid var(--accent); padding:.15rem 0 .15rem .75rem; margin:.55rem 0 .15rem;
            color:var(--ink2); font-size:.97rem; line-height:1.5; }
-.introbox{ background:#efeff0; border:1px solid #dadadf; border-left:4px solid var(--accent);
-           border-radius:10px; padding:.8rem 1.05rem; color:var(--ink2); font-size:.98rem;
-           line-height:1.55; margin:.2rem 0 .55rem; }
-.note{ background:#efeff0; border:1px solid #dadadf; border-left:3px solid #9a9aa4; border-radius:8px;
-       padding:.6rem .9rem; color:var(--ink2); font-size:.92rem; line-height:1.5; margin:.3rem 0; }
+.introbox{ background:var(--card); border:1px solid #d6d6dc; border-left:4px solid var(--accent);
+           border-radius:12px; padding:.8rem 1.05rem; color:var(--ink2); font-size:.98rem;
+           line-height:1.55; margin:.2rem 0 .55rem; box-shadow:var(--raise); }
+.note{ background:var(--card); border:1px solid #d6d6dc; border-left:3px solid #9a9aa4; border-radius:10px;
+       padding:.6rem .9rem; color:var(--ink2); font-size:.92rem; line-height:1.5; margin:.3rem 0;
+       box-shadow:var(--raise); }
+/* secondary method callout — present but quieter than .note */
+.method{ background:#eef0f6; border:1px solid #d3d6e2; border-left:3px solid #8a8fb0; border-radius:10px;
+         padding:.6rem .9rem; color:#3c4150; font-size:.9rem; line-height:1.5; margin:.35rem 0; }
+.method b{ color:#2b2f45; }
+/* per-page technical footer — small, soft gray, finer than anything above */
+.footnote{ font-family:'IBM Plex Mono',monospace; color:#85858f; font-size:.68rem; line-height:1.5;
+           letter-spacing:.01em; margin:.2rem 0 .1rem; }
+.footnote b{ color:#6c6c77; font-weight:600; }
+/* the live-recompute charts get a distinct WHITE raised panel so they pop off the gray card */
+div[data-testid="stPlotlyChart"]{ background:#ffffff; border:1px solid #d6d6dc; border-radius:10px;
+      padding:8px 6px; box-shadow:0 1px 2px rgba(20,20,28,.05), 0 8px 20px -8px rgba(20,20,28,.18); }
+.gotab{ font-family:'IBM Plex Mono',monospace; font-size:.68rem; font-weight:600; letter-spacing:.04em;
+        color:var(--accent); text-transform:uppercase; }
 /* captions dark — no wash-out */
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p{ color:#3b4049 !important; }
 #MainMenu, footer{ visibility:hidden; }
 [data-testid="stToolbar"]{ display:none; }
-section[data-testid="stSidebar"]{ width:300px !important; }
+section[data-testid="stSidebar"]{ width:312px !important; }
+/* sidebar secondary text — brighter than default so the light-gray copy stays legible */
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p{ color:#41454f !important;
+      font-size:.82rem !important; line-height:1.5; }
+.sidefoot{ font-family:'IBM Plex Mono',monospace; color:#5a5e6a; font-size:.66rem; line-height:1.55;
+           letter-spacing:.01em; border-top:1px solid #b9b9c2; margin-top:1rem; padding-top:.7rem; }
 </style>
 """, unsafe_allow_html=True)
 
 
 def md(html):
     st.markdown(html, unsafe_allow_html=True)
+
+
+@contextmanager
+def card(parent=st, feature=False):
+    """Bordered container that ALSO gets the differentiated background + raised lift. Streamlit
+    1.58's st.container(border=True) is a bare stVerticalBlock with no styleable testid, so we drop
+    a hidden marker inside as the first element; the CSS :has(> stElementContainer .mark) rule keys
+    off it (verified to match ONLY the bordered card). Use everywhere instead of .container(border=True)."""
+    with parent.container(border=True):
+        md(f"<span class='{'featmark' if feature else 'cardmark'}' style='display:none'></span>")
+        yield
 
 
 CHIP = {"measured": ("Measured", "measured"), "estimate": ("Estimate", "estimate"),
@@ -114,7 +167,7 @@ def img(name, **kw):
 
 
 def kpi(col, label, value, delta=None, help=None, delta_color="off"):
-    with col.container(border=True):
+    with card(col):
         st.metric(label, value, delta, help=help, delta_color=delta_color)
 
 
@@ -124,7 +177,7 @@ def intro_card(body):
 
 def chart_card(title, png, takeaway, how=None):
     """Static (signed-off) chart in a card: plain title + hover ⓘ (technical detail) + plain takeaway."""
-    with st.container(border=True):
+    with card():
         st.subheader(title, help=how)
         img(png)
         if takeaway:
@@ -135,15 +188,35 @@ def note(body):
     md(f"<div class='note'>{body}</div>")
 
 
-# ---- themed Plotly (indigo accent, Inter/mono fonts, transparent so it sits on the card) ----
-PACCENT, PINK, PGRID = "#4e42e4", "#1d1d25", "#d3d3d9"
+def method_callout(body):
+    """A quieter-than-note callout for 'about this method' asides (e.g. external benchmarks)."""
+    md(f"<div class='method'>{body}</div>")
+
+
+def footnote(body):
+    """Small, soft-gray per-page technical footer (finer than any other text on the page)."""
+    md(f"<div class='footnote'>{body}</div>")
+
+
+def feature_card(col, chip_kind, icon, title, body, foot):
+    """A raised, tinted overview 'headline finding' card — visually set apart from the regular
+    cards (the hidden .featmark drives the :has() tint), with a text pointer to the deep-dive tab."""
+    with card(col, feature=True):
+        md(chip(chip_kind))
+        st.markdown(f"#### {icon} {title}")
+        st.markdown(body)
+        md(f"<span class='gotab'>{foot} →</span>")
+
+
+# ---- themed Plotly (indigo accent, Inter/mono fonts; WHITE panel so live charts pop off the card) ----
+PACCENT, PINK, PGRID = "#4e42e4", "#1d1d25", "#e2e2e8"
 PGREEN, PRED = "#1f9d55", "#c0392b"
 PLOT_CONFIG = {"displayModeBar": False}
 
 
 def _ply(fig, height):
-    fig.update_layout(height=height, margin=dict(l=8, r=8, t=20, b=8),
-                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+    fig.update_layout(height=height, margin=dict(l=8, r=8, t=22, b=8),
+                      paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
                       font=dict(family="Inter, sans-serif", color=PINK, size=13),
                       hoverlabel=dict(font_family="IBM Plex Mono, monospace", bgcolor="#1d1d25"))
     return fig
@@ -186,20 +259,48 @@ def rhi_fig(yrs, base_vals, your_vals):
     return _ply(fig, 330)
 
 
+def inflection_fig(df, baseline):
+    """Monthly negative share on a real time axis, with the two-step story marked:
+    the early-2024 onset and the late-2024 peak, against the pre-2024 baseline."""
+    x = pd.to_datetime(df["month"] + "-01")
+    y = df["neg_share"] * 100
+    last = x.max()
+    fig = go.Figure()
+    fig.add_vrect(x0="2024-03-01", x1=str(last.date()), fillcolor="#c0392b", opacity=0.05, line_width=0)
+    fig.add_hline(y=baseline * 100, line=dict(color="#9a9aa4", width=1.5, dash="dot"),
+                  annotation_text=f"≈{baseline*100:.0f}% pre-2024 baseline", annotation_position="bottom left",
+                  annotation_font=dict(size=10, color="#6c6c77"))
+    fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", name="negative share",
+                  line=dict(color=PACCENT, width=2.4), marker=dict(size=6, color=PACCENT),
+                  hovertemplate="%{x|%b %Y}: %{y:.0f}% negative<extra></extra>"))
+    for dt, lab in [("2024-03-01", "onset"), ("2024-12-01", "peak ≈48%")]:
+        fig.add_vline(x=dt, line=dict(color="#c0392b", width=1.6, dash="dash"))
+        fig.add_annotation(x=dt, y=1.0, yref="paper", text=lab, showarrow=False, yshift=9,
+                           font=dict(size=10, color="#c0392b"))
+    fig.update_yaxes(range=[0, 56], ticksuffix="%", title_text="Share of reviews that are negative",
+                     showgrid=True, gridcolor=PGRID)
+    fig.update_xaxes(showgrid=False)
+    return _ply(fig, 340)
+
+
 # ============================================================ sidebar (slim + informative)
 with st.sidebar:
     md("<div style='font-weight:800;font-size:1.2rem;color:#1d1d25;letter-spacing:-.01em'>360training</div>"
        "<div class='lbl' style='margin-bottom:.7rem'>Reputation Analytics</div>")
     md("<div class='lbl'>About this analysis</div>")
     st.caption("An independent read of 10,601 public customer reviews (2014–2026), built to answer three "
-               "questions: is the reputation decline real, what's driving it, and what should leadership do?")
+               "questions: is the reputation decline real, what is driving it, and what should leadership do? "
+               "It is a second look at the public record — not an internal audit and not commissioned by the "
+               "company.")
     md("<div class='lbl'>How to read the findings</div>")
     md(f"{chip('measured')} &nbsp;directly counted in the review data<br>"
        f"{chip('estimate')} &nbsp;a modeled estimate — directional, not exact<br>"
        f"{chip('action')} &nbsp;a suggested next step")
+    st.caption("Every claim carries one of these labels, and the technical method behind each sits inside the "
+               "ⓘ icons and the small gray footnote at the bottom of each tab.")
     st.write("")
     note("Two panels are <b>interactive</b> — <b>Revenue at risk</b> and <b>Reputation health</b>. "
-         "Adjust the inputs and the conclusions update live.")
+         "Adjust the inputs and the conclusions recompute live, from the same code as the static charts.")
     with st.expander("Data & limitations"):
         st.markdown(
             "- **Who posts, not everyone** — reviews can't be split into invited vs. organic, so every "
@@ -209,6 +310,19 @@ with st.sidebar:
             "- **The auto-tagging of all reviews is AI-generated** — checked for consistency, but not "
             "hand-certified for accuracy.\n"
             "- Figures reconcile across every analysis (22 cross-checks, 0 conflicts).")
+    with st.expander("Models & how we guard against error"):
+        st.markdown(
+            "- **Forecast** — local-level state-space model, validated by re-forecasting 53 held-back months.\n"
+            "- **Complaint drivers** — logistic regression with bootstrap intervals, cross-checked by a "
+            "gradient-boosted tree.\n"
+            "- **Categorization** — Claude Haiku 4.5 read all 10,601 reviews; a stronger model (Sonnet 4.6) "
+            "independently re-checked a sample.\n"
+            "- **Integrity audit** — a false-discovery-rate (FDR) correction so random spikes aren't mistaken "
+            "for manipulation.\n"
+            "- Full technical specs are on the Overview's *Methods & models* panel.")
+    md("<div class='sidefoot'>Independent analysis of 10,601 public reviews · 2014–2026<br>"
+       "Every figure cross-checked (22/22, 0 conflicts) · measured vs. estimated labeled throughout<br>"
+       "Two panels recompute live from the same code as the charts.</div>")
 
 # ============================================================ header (editorial hero)
 md("<div class='kicker'>Reputation analysis · 10,601 reviews · 2014–2026</div>")
@@ -217,12 +331,19 @@ md("<div class='hero-sub'>What 10,601 public reviews say about 360training's rep
    "survives a skeptical second look. We built a forecast, a complaint-driver analysis, a revenue lens, an "
    "integrity audit, and a live reputation-health index — every finding labeled by how far we can stand "
    "behind it.</div>")
-md("<div class='meta' style='margin-top:.6rem'>Measured = counted in the data &nbsp;·&nbsp; Estimate = modeled, "
-   "directional &nbsp;·&nbsp; two panels recompute live</div>")
+md("<div class='hchips'>"
+   "<span class='hdr-chip'><b>Measured</b> · counted in the data</span>"
+   "<span class='hdr-chip'><b>Estimate</b> · modeled, directional</span>"
+   "<span class='hdr-chip live'>◆ two panels recompute live</span>"
+   "</div>")
+md("<div class='meta' style='margin-top:.55rem;color:#4a4e58'>10,601 reviews · 2014–2026 · 8 lenses, one "
+   "reputation-health score · every figure cross-checked (22/22, 0 conflicts) · technical detail in the ⓘ "
+   "icons and each tab's gray footnote</div>")
 st.write("")
 
 tabs = st.tabs(["Overview", "Forecast", "Complaint drivers", "Product lines",
-                "Review integrity", "Revenue at risk", "Reputation health", "Resolution gap"])
+                "Review integrity", "Revenue at risk", "Reputation health", "Resolution gap",
+                "Inflection points"])
 
 # ------------------------------------------------------------ Overview
 with tabs[0]:
@@ -237,57 +358,126 @@ with tabs[0]:
 
     c = st.columns(4)
     kpi(c[0], "Reviews analyzed", f"{h['n_reviews']:,}", "2014–2026",
-        help="Every public Trustpilot review of 360training over the period.")
+        help="Every public Trustpilot review of 360training over the window — 10,601 reviews from 2014-07 to "
+             "2026-06 (the partial final month is excluded from trend math). The full corpus is the unit of "
+             "analysis, not a sample.")
     kpi(c[1], "Negative reviews", f"{h['n_negative']:,}", f"{h['neg_share']:.0%} of all",
-        help="Reviews rated 1 or 2 stars out of 5.")
+        help="Reviews rated 1 or 2 stars (out of 5). 2,206 of 10,601 over the full period — but the share "
+             "roughly doubled after early 2024, which is the whole subject of this analysis.")
     kpi(c[2], "Reviews that got a reply", f"{h['reply_coverage']:.0%}", "the company does respond",
-        help="The company replies to most reviews — the issue is what those replies say, not whether they exist.")
+        help="Reply coverage is high — the company answers most reviews. The Resolution-gap tab shows the "
+             "catch: ~73% of replies to unhappy customers are 'email-us' deflection, and ~0.5% contain a "
+             "specific fix. The problem is reply *content*, not reply *effort*.")
     kpi(c[3], "Reputation Health Index", f"{ann['2023']:.0f} → {ann['2026']:.0f}", "2023 = 100 baseline",
         delta_color="off",
-        help="A composite score combining complaint volume, severity, and reply operations. 2023 is the "
-             "baseline (=100); lower means worse. See the Reputation health tab.")
+        help="A single composite of complaint volume, severity, and reply operations, standardized against a "
+             "frozen 2023 baseline (=100); lower is worse. The decline survives every reasonable re-weighting "
+             "— try it yourself on the Reputation-health tab.")
 
     st.write("")
-    md("<b>What we did</b>")
+    md("<b>What the analysis found</b>")
     st.markdown(
-        "We read the entire public review record, then went beyond counting stars: a forecast of where "
-        "sentiment is heading, a model of which complaints predict the angriest reviews, an AI pass that "
-        "categorized all 10,601 reviews, a revenue lens, a check for review manipulation, a product-line "
-        "breakdown, and a single reputation-health score. Every claim is labeled as something we **measured** "
-        "or something we **estimate**, and each was stress-tested.")
+        f"- **The decline is real and roughly doubled the bad-review rate.** Negative share moved from a "
+        f"~18% pre-2024 baseline to the low-to-mid 30s%, and the composite health score fell "
+        f"**{ann['2023']:.0f} → {ann['2026']:.0f}**.\n"
+        "- **It arrived in two steps, not one.** A clear onset in early 2024, then an acceleration to a "
+        "~48% peak around late-2024/early-2025; it has since settled, stuck high near ~32%. *(See Inflection "
+        "points.)*\n"
+        f"- **The biggest lever is controllable.** **{rg['actionable']['pct_of_neg']:.0%}** of unhappy "
+        "customers name a *specific, fixable* problem; only **~0.5%** get a real fix in the reply.\n"
+        "- **It concentrates where you can see it.** Billing and customer-support complaints most strongly "
+        "predict a 1-star review, and the high-volume safety/OSHA line saw negativity roughly **triple** "
+        "(24% → 78%) since 2023.\n"
+        "- **It is not a fake-review story.** A manipulation audit comes back clean — the most credibility-"
+        "building negative result in the package.\n"
+        "- **We refuse to invent a loss number.** The revenue question is framed as a *break-even* you can "
+        "test with your own inputs, not a fabricated dollar figure.")
 
     st.write("")
-    md("<b>The three findings that matter</b>")
+    note("<b>Where the technical detail lives.</b> To keep the read clean, the methods sit out of the way: "
+         "hover any <b>ⓘ</b> icon for the technique behind that exhibit, open <b>Methods &amp; models</b> just "
+         "below for the full model list and the safeguards against error, and check the small gray "
+         "<b>footnote</b> at the bottom of each tab for that page's specifics.")
+
+    st.write("")
+    md("<b>The three findings that matter</b> &nbsp;<span class='lbl' style='text-transform:none'>"
+       "— each opens up on its own tab</span>")
     f1, f2, f3 = st.columns(3)
-    with f1.container(border=True):
-        md(f"{chip('measured')}")
-        st.markdown(f"#### 🛠️ A fixable problem, left unfixed")
-        st.markdown(
-            f"**{rg['actionable']['pct_of_neg']:.0%}** of unhappy customers name a *specific, fixable* "
-            f"problem — yet only **~0.5%** get a real fix in the reply. The rest get an apology or "
-            "'email us.' **The single most actionable lever in this analysis.**")
-        st.caption("→ Resolution gap tab")
-    with f2.container(border=True):
-        md(f"{chip('estimate')}")
-        st.markdown("#### 📉 A real, steady decline")
-        st.markdown(
-            f"The reputation-health score fell **{ann['2023']:.0f} → {ann['2026']:.0f}** since 2023, and it "
-            "drops no matter how we weight the inputs — so the decline is real, not an artifact of how we "
-            "built the score.")
-        st.caption("→ Reputation health tab")
-    with f3.container(border=True):
-        md(f"{chip('estimate')}")
-        st.markdown("#### 🎯 We know where it hurts most")
-        st.markdown(
-            "Billing and customer-support complaints are the strongest predictors of a furious review, and "
-            "the safety-training line saw negativity **triple** since 2023 — the highest-leverage place to look.")
-        st.caption("→ Complaint drivers · Product lines")
+    feature_card(f1, "measured", "🛠️", "A fixable problem, left unfixed",
+                 f"**{rg['actionable']['pct_of_neg']:.0%}** of unhappy customers name a *specific, fixable* "
+                 "problem — yet only **~0.5%** get a real fix in the reply. The rest get an apology or "
+                 "'email us.' **The single most actionable lever in this analysis.**", "Resolution gap")
+    feature_card(f2, "estimate", "📉", "A real, steady decline",
+                 f"The reputation-health score fell **{ann['2023']:.0f} → {ann['2026']:.0f}** since 2023, and "
+                 "it drops no matter how we weight the inputs — so the decline is real, not an artifact of how "
+                 "we built the score.", "Reputation health")
+    feature_card(f3, "estimate", "🎯", "We know where it hurts most",
+                 "Billing and customer-support complaints are the strongest predictors of a furious review, "
+                 "and the safety-training line saw negativity **triple** since 2023 — the highest-leverage "
+                 "place to look.", "Complaint drivers · Product lines")
 
     st.write("")
-    note("<b>How to use this dashboard.</b> Most tabs present a chart with a plain-language read and an "
-         "ⓘ you can hover for the technical detail. Two tabs are interactive: <b>Revenue at risk</b> lets you "
-         "drop in your own numbers and watch the break-even move, and <b>Reputation health</b> lets you "
-         "re-weight the score and watch the decline hold.")
+    with st.expander("Methods & models — what we ran, and how we guard against being wrong"):
+        st.markdown(
+            "Eight analytical lenses sit behind this dashboard. The models are deliberately conservative, and "
+            "each is paired with a mechanism that limits how badly it can mislead.")
+        mm1, mm2 = st.columns(2)
+        with mm1:
+            st.markdown("**The models**")
+            st.markdown(
+                "- **Forecast** — a *local-level state-space model* on the monthly negative share (a "
+                "random-walk 'true level' seen through noisy monthly samples), with extra month-to-month "
+                "variance built in (φ≈1.18) so the bands aren't artificially tight; the fan is a Monte-Carlo "
+                "simulation.\n"
+                "- **Complaint drivers** — *logistic regression* odds ratios (billing ≈10×, support ≈4.6× the "
+                "odds of a 1-star review) with bootstrap confidence intervals, cross-checked by a "
+                "*gradient-boosted tree* for variable importance.\n"
+                "- **AI categorization** — *Claude Haiku 4.5* (temperature 0, forced-tool-schema) extracted 19 "
+                "structured fields from all 10,601 reviews.\n"
+                "- **Topic discovery (embeddings)** — *all-MiniLM-L6-v2* → *UMAP* → *k-means* with c-TF-IDF "
+                "labels, to find themes the keyword tags miss.\n"
+                "- **Reputation Health Index** — a z-scored composite (complaint volume, severity, reply ops) "
+                "against a frozen 2023 baseline.")
+        with mm2:
+            st.markdown("**How we guard against error**")
+            st.markdown(
+                "- **Honest uncertainty over false precision** — the forecast was *back-tested on 53 held-back "
+                "months*; its 80% / 95% bands actually covered 79% / 96% of outcomes, so the ranges are "
+                "earned, not decorative.\n"
+                "- **Cross-checked drivers** — bootstrap intervals, a gradient-boosted-tree second opinion, "
+                "and a 1★-vs-2★ test "
+                "*among already-unhappy reviewers* to rule out 'angry words in angry reviews.'\n"
+                "- **The AI pass is validated, then kept on a leash** — a stronger model (*Claude Sonnet 4.6*) "
+                "independently re-checked a stratified sample (~87–96% agreement, Wilson 95% confidence "
+                "intervals); this "
+                "measures *consistency, not certified accuracy*, so the headline analyses stay on the "
+                "conservative keyword method.\n"
+                "- **False-discovery-rate (FDR) correction** in the integrity audit, so random 5-star spikes "
+                "across 450 weeks aren't mistaken for manipulation.\n"
+                "- **One denominator, frozen baselines, capped outliers** — the resolution gap uses a single "
+                "denominator; the health index freezes 2023 variance and caps z-scores at ±3.\n"
+                "- **22 cross-checks across all analyses, 0 conflicts** — and every claim labeled "
+                "*measured* vs *estimate*.")
+        method_callout(
+            "<b>Why an embedding model, and what 'letter-to-numeric' means.</b> Keyword tags only catch text "
+            "that contains the keyword. To find what they miss, the embedding model converts each review's "
+            "<i>words into numbers</i> — a 384-dimension vector — so that meaning becomes geometry: two "
+            "reviews about the same underlying problem land close together <i>even when they share no words</i>. "
+            "Clustering those vectors finds themes by <b>meaning, not keyword-spotting</b> — which is how the "
+            "pass surfaced issues the tags never see (course timers, platform usability, proctoring).")
+
+    st.write("")
+    note("<b>How to use this dashboard.</b> Each tab is a single exhibit with a plain-language read; hover the "
+         "<b>ⓘ</b> for the method. Two tabs are <b>interactive</b> — <b>Revenue at risk</b> lets you drop in "
+         "your own numbers and watch the break-even move, and <b>Reputation health</b> lets you re-weight the "
+         "score and watch the decline hold. The final tab, <b>Inflection points</b>, walks the timeline of when "
+         "things turned and what questions that raises.")
+    footnote(
+        "<b>Scope &amp; provenance.</b> Source: 10,601 public Trustpilot reviews (deduplicated upstream), "
+        "2014-07 → 2026-06; the partial final month is excluded from trend estimates. Independent secondary "
+        "analysis of the public record — not an internal audit, not company-commissioned. Monthly samples run "
+        "~50–90 reviews after 2024, so single-month moves of a few points are treated as noise. Every figure "
+        "shown here is computed in the tested data layer (cc2_app_data.py, 11/11 invariant checks).")
 
 # ------------------------------------------------------------ Forecast  (full exemplar)
 with tabs[1]:
@@ -301,9 +491,9 @@ with tabs[1]:
     st.write("")
 
     c = st.columns(4)
-    kpi(c[0], "Where sentiment sits now", "~32% negative", "down from a ~47% peak",
-        help="The negative-review share is well off its late-2024/early-2025 peak (~47%) but still far above "
-             "the pre-2024 baseline (~18%).")
+    kpi(c[0], "Where sentiment sits now", "~32% negative", "down from a ~48% peak",
+        help="The negative-review share is well off its late-2024/early-2025 peak (~48%, in Dec 2024) but "
+             "still far above the pre-2024 baseline (~18%).")
     kpi(c[1], "Pre-decline baseline", "~18% negative", "2023 and earlier",
         help="Where the negative share sat before the 2024 decline — the level a full recovery would return to.")
     kpi(c[2], "Forecast reliability (80%)", f"{cov['cov80']:.0%}", "target 80%", delta_color="off",
@@ -327,7 +517,7 @@ with tabs[1]:
             "on a single-number prediction isn't expected; honest uncertainty is the deliverable.")
 
     st.write("")
-    with st.container(border=True):
+    with card():
         st.subheader("Did the *types* of complaints change, or did everything just get worse?",
                      help="Technical: an associational decomposition using the driver model — it attributes "
                           "the change in negative share to the shift in complaint-type prevalence vs. an "
@@ -361,6 +551,13 @@ with tabs[1]:
         how="What we ran and why: we measured the median time to a company reply and the share of reviews "
             "that get any reply, month by month — kept separate from sentiment on purpose, because reply "
             "speed is an operational metric that moves on its own and is directly fixable.")
+    footnote(
+        "<b>Method.</b> Local-level Gaussian state-space model (random-walk latent level + observation "
+        "noise) on the monthly negative share, dispersion φ≈1.18, with a 1,000-path Monte-Carlo predictive "
+        "fan. <b>Validation:</b> rolling-origin backtest over 53 held-back month-origins — empirical 80% / "
+        "95% interval coverage = 79% / 96%, so the bands are calibrated, not nominal. The complaint-mix split "
+        "is an <i>associational</i> variance decomposition (keyword themes cover ~58% of negatives), not a "
+        "causal attribution.")
 
 # ------------------------------------------------------------ Complaint drivers
 with tabs[2]:
@@ -386,6 +583,13 @@ with tabs[2]:
         show = [c for c in ["theme", "n", "pct_negative", "marginal_OR", "adjusted_OR", "cond_1v2_OR"]
                 if c in d.columns]
         st.dataframe(d[show], width="stretch", hide_index=True)
+    footnote(
+        "<b>Method.</b> Logistic regression with outcome = 1★ review; effects reported as odds ratios with "
+        "nonparametric bootstrap 95% confidence intervals, and cross-checked against gradient-boosted-tree variable"
+        "importances. The <i>adjusted</i> and within-negative <i>1★-vs-2★</i> specifications hold the other "
+        "themes constant and compare only among already-unhappy reviewers — isolating operational signal from "
+        "angry phrasing. Associational, not causal; the near-tautological scam/fraud theme is flagged; "
+        "keyword tags cover ~58% of negative reviews, so the ranking describes the tagged subset.")
 
 # ------------------------------------------------------------ Product lines
 with tabs[3]:
@@ -396,7 +600,7 @@ with tabs[3]:
         "patterns stand out — one chronic, one accelerating.")
     st.write("")
     c1, c2 = st.columns([1, 1])
-    with c1.container(border=True):
+    with card(c1):
         st.subheader("Safety-training negativity tripled",
                      help="Stated at annual grain because per-quarter counts (n=9–20 in 2025) are too small to "
                           "trend reliably; each full year clears the minimum sample bar.")
@@ -405,7 +609,7 @@ with tabs[3]:
             m[i].metric(r["year"], f"{r['neg_share']:.0%}", f"{int(r['n'])} reviews", delta_color="off")
         md("<div class='takeaway'>The highest-volume line moved the most — which means it also moves the "
            "overall number the most. The highest-leverage place to investigate.</div>")
-    with c2.container(border=True):
+    with card(c2):
         st.subheader("Year-over-year", help="Annual negative share for the safety/OSHA line.")
         img("G3_osha_annual_negshare.png")
     st.write("")
@@ -416,6 +620,12 @@ with tabs[3]:
         "the full period, roughly twice the overall rate — staying dark across nearly every quarter.",
         how="Coverage note: product line is inferred from course/regulator keywords, which tag ~11% of reviews "
             "(the AI pass lifts this to ~21%). Rates are within the tagged subset, with sample sizes shown.")
+    footnote(
+        "<b>Method.</b> Product line is inferred from course/regulator keywords (~11% of reviews tagged; the "
+        "embedding + AI pass lifts coverage to ~21%); negative rates are computed within the tagged subset "
+        "with n shown beside each cell. OSHA/safety is reported at <b>annual</b> grain because per-quarter "
+        "counts (n≈9–20 in 2025) fall below the minimum-sample bar for reliable trending — a deliberate guard "
+        "against reading noise as movement.")
 
 # ------------------------------------------------------------ Review integrity
 with tabs[4]:
@@ -447,6 +657,13 @@ with tabs[4]:
         how="Every dated 5-star spike predates the 2024 decline (2018–2023), consistent with normal "
             "review-invitation email batches after course completion — not manipulation timed to mask a drop. "
             "Resolving it definitively would need data only Trustpilot/360training hold (IP, invite logs).")
+    footnote(
+        "<b>Method.</b> Weekly 5★-rate z-scores across 450 weeks; candidate spikes filtered with a "
+        "Benjamini–Hochberg <b>false-discovery-rate</b> correction (15 survive vs. ~22 expected by chance — "
+        "i.e. no excess), plus a first-time-reviewer-share null test for a fake-account signature (flat at "
+        "0.659–0.708, 2018–2026). This is the deliberate guard against multiple-comparison false alarms. "
+        "Manipulation is unprovable on public data — definitive resolution needs identity/IP/invite-log "
+        "records only Trustpilot or 360training hold; framed as an <b>audit, not an accusation</b>.")
 
 # ------------------------------------------------------------ Revenue at risk (interactive)
 with tabs[5]:
@@ -455,8 +672,16 @@ with tabs[5]:
         "give you a <b>break-even</b>: the reputation fix pays for itself if it recovers even a small lift in "
         "conversion among customers who read reviews. Enter your own numbers below — the math updates live.")
     st.write("")
+    method_callout(
+        "<b>Why even a small conversion lift is plausible.</b> Independent research from Harvard Business "
+        "School — Michael Luca, <i>Reviews, Reputation, and Revenue: The Case of Yelp.com</i> — found that a "
+        "<b>one-star rise in a business's online rating drove a 5–9% increase in revenue</b>, concentrated "
+        "among independent (non-chain) businesses. That study is in restaurants, not training, so we treat it "
+        "as <i>directional support that a reputation→revenue link is real</i> — not a transferable number. We "
+        "deliberately do <b>not</b> borrow its 5–9%: the break-even below is built only from the inputs you "
+        "enter.")
     base = D.revenue_base()
-    with st.container(border=True):
+    with card():
         st.subheader("Try it: when does fixing this pay for itself?",
                      help="Break-even conversion lift = annual fix cost ÷ exposed revenue, where exposed "
                           "revenue = annual revenue × exposure fraction × review-consult rate. No borrowed "
@@ -500,6 +725,13 @@ with tabs[5]:
         mm[1].metric("Midpoint", f"${rng.get('p50',0)/1e6:.2f}M", delta_color="off")
         mm[2].metric("Middle half (25th–75th)", f"${rng.get('p25',0)/1e6:.2f}M – ${rng.get('p75',0)/1e6:.2f}M",
                      delta_color="off")
+    footnote(
+        "<b>Method.</b> Break-even lift = annual fix cost ÷ (annual online revenue × review-exposure fraction "
+        "× heavy-review-consult rate) — <b>no borrowed elasticity</b>; the slider math imports the same "
+        "functions as the published exhibits, so a slider can't contradict a static chart. The 'realistically "
+        "recoverable' band is derived from the reconciled star-rating drop, not assumed. The dollar figures in "
+        "the appendix use placeholder/benchmark inputs (not 360training's actuals) and are illustrative only — "
+        "the break-even is the real claim.")
 
 # ------------------------------------------------------------ Reputation health (interactive)
 with tabs[6]:
@@ -518,7 +750,7 @@ with tabs[6]:
             "The 2024 event markers are illustrative calibration, not an out-of-sample back-test.")
 
     st.write("")
-    with st.container(border=True):
+    with card():
         st.subheader("Try it: re-weight the score yourself",
                      help="Each slider sets a component's weight; the score recomputes from the published "
                           "component scores. With the default weights it reproduces the official index exactly.")
@@ -551,6 +783,13 @@ with tabs[6]:
         img("H3_leading_vs_lagging.png")
         st.caption("Complaint volume dominates the decline; reply speed degraded later (late 2025+) — a "
                    "lagging operational shock. Review-integrity contributes nothing (the audit's clean result).")
+    footnote(
+        "<b>Method.</b> Composite of standardized components (complaint volume, severity, reply lag, reply "
+        "coverage, integrity, trust-bleed): each is z-scored with <b>σ frozen at the 2023 baseline</b> and "
+        "<b>capped at ±3</b> to limit outlier leverage; index = 100 − scale × weighted-mean(z). It is "
+        "re-computable, not a live monitor. Default weights were fixed <i>before</i> viewing 2024 data; "
+        "robustness is shown across 9 fixed weightings plus the live re-weighter above. The 2024 event markers "
+        "are illustrative calibration, not an out-of-sample back-test.")
 
 # ------------------------------------------------------------ Resolution gap
 with tabs[7]:
@@ -578,14 +817,106 @@ with tabs[7]:
        "deflection into tracked, specific resolutions on the fixable majority of complaints.</div>")
     with st.expander("How the reviews were categorized (and its honest limits)"):
         st.markdown(
-            "All 10,601 reviews were auto-categorized into 19 fields by an AI model (fixed schema, $21.74, "
-            "0 errors). The validation is **model-vs-model agreement** (~87–96%), which measures *consistency*, "
-            "not certified accuracy — so it most likely flatters the true number. We did **not** use it to "
-            "unlock the more advanced analyses, which stay on the conservative keyword method. Its real value "
-            "is breadth — including **1,103 reviews** about issues the keyword tags miss entirely (course "
-            "timers, platform usability, proctoring).")
+            "All 10,601 reviews were auto-categorized into 19 fields by **Claude Haiku 4.5** (fixed schema, "
+            "temperature 0, 0 errors); a stronger model — **Claude Sonnet 4.6** — independently re-checked a "
+            "stratified sample. That validation is **model-vs-model agreement** (~87–96%), which measures "
+            "*consistency*, not certified accuracy — so it most likely flatters the true number. We did "
+            "**not** use it to unlock the more advanced analyses, which stay on the conservative keyword "
+            "method. Its real value is breadth — including **1,103 reviews** about issues the keyword tags "
+            "miss entirely (course timers, platform usability, proctoring).")
+        st.caption("A separate embedding model reads by *meaning rather than keywords*: it turns each review's "
+                   "words into numbers (a vector) so related complaints group together even with no shared "
+                   "words. See the Overview's *Methods & models* panel for how that 'letter-to-numeric' step "
+                   "works.")
+    footnote(
+        "<b>Method.</b> One denominator throughout (the 2,206 negative reviews) so the funnel never shifts "
+        "goalposts. <i>Actionable</i> = the review names a specific, fixable issue; <i>specific remedy</i> = a "
+        "concrete fix appears in the company reply (23 of 10,601 corpus-wide, ≈0.2%) — a <b>conservative "
+        "upper bound</b>, since several of those 23 are process promises rather than customer fixes. "
+        "Deflection share is measured on replies to negative reviews. Categorization model = Claude Haiku 4.5, "
+        "validated against Claude Sonnet 4.6 (consistency, not certified accuracy).")
 
-st.divider()
-md("<div class='meta'>Independent analysis of 10,601 public reviews &nbsp;·&nbsp; every figure cross-checked "
-   "(22/22, 0 conflicts) &nbsp;·&nbsp; findings separated into measured vs. estimated &nbsp;·&nbsp; two panels "
-   "recompute live from the same code as the charts.</div>")
+# ------------------------------------------------------------ Inflection points (trends over time)
+with tabs[8]:
+    mm = D.monthly_metrics()
+    cp_neg = D.change_point("neg_share")
+    cp_rating = D.change_point("avg_rating")
+    cp_lag = D.change_point("median_reply_lag")
+    pre = D.change_point("neg_share::pre_2024-03")["mean_after"]
+    post = D.change_point("neg_share::post_2024-03")["mean_after"]
+    peak = mm.loc[mm["neg_share"].idxmax()]
+
+    intro_card(
+        "<b>When did 360training's reputation actually turn — and what questions does the timing raise?</b> "
+        "This tab walks the monthly record and marks the moments the numbers shifted. We can pinpoint "
+        "<i>when</i> from the data; we deliberately keep the <i>why</i> as <b>open questions</b>, because "
+        "review text alone can't prove an external cause. Treat the prompts below as a checklist to run "
+        "against the internal calendar — not as conclusions.")
+    st.write("")
+    with card():
+        st.subheader("The two-step decline, month by month",
+                     help="Monthly negative share (1–2★) for months with ≥20 reviews, on a real time axis. "
+                          "The dotted line is the pre-2024 baseline; the dashed markers are the onset and the "
+                          "peak. At 50–90 reviews/month the series is noisy — read the steps, not single "
+                          "points.")
+        st.plotly_chart(inflection_fig(mm, pre), width="stretch", config=PLOT_CONFIG)
+        md("<div class='takeaway'>Two moves, not one: a sharp <b>onset in early 2024</b> (off an ~18% "
+           "baseline), then an <b>acceleration to a ~48% peak</b> around the 2024–25 turn, before settling "
+           "high near ~32%.</div>")
+    st.write("")
+    c = st.columns(4)
+    kpi(c[0], "Onset", "Mar 2024", f"{pre:.0%} → {post:.0%} negative",
+        help="Year-before vs. year-after March 2024 (n=2,054 vs 2,147): the negative share roughly doubles. "
+             "This is the narrative break the rest of the package centers on.")
+    kpi(c[1], "Biggest single break", cp_neg["break_month"],
+        f"avg rating {cp_rating['mean_before']:.1f} → {cp_rating['mean_after']:.1f}",
+        help="A mean-shift detector that assumes no dates independently lands the single largest break at "
+             "2024-10 — the acceleration phase, where average rating falls most sharply.")
+    kpi(c[2], "Worst month", peak["month"], f"{peak['neg_share']:.0%} negative",
+        help="The single worst month in the record. After this the negative share eases but stays far above "
+             "the pre-2024 baseline.")
+    kpi(c[3], "Reply-speed shock", cp_lag["break_month"],
+        f"{cp_lag['mean_before']:.0f} → {cp_lag['mean_after']:.0f} day reply",
+        help="A SEPARATE, later operational break: median reply time jumps from ~3 days to ~11 (first visible "
+             "from ~Aug 2025). Not the sentiment story — a more recent, directly fixable ops warning.")
+    st.write("")
+    md("<b>Three shifts, and the questions each should trigger</b> &nbsp;<span class='lbl' "
+       "style='text-transform:none'>— dates are measured; causes are open questions for internal review</span>")
+    q1, q2, q3 = st.columns(3)
+    with card(q1):
+        md(f"{chip('measured')} &nbsp;<span class='lbl' style='text-transform:none'>Early 2024 · onset</span>")
+        st.markdown("**Negative share roughly doubles** (~18% → ~34%) within a quarter — the cleanest break "
+                    "in the series.")
+        st.markdown("_Questions to trace internally:_ what changed in late-2023 / early-2024 — pricing or "
+                    "packaging, a learning-management-system (LMS) or course-platform change, support "
+                    "staffing or outsourcing, a regulatory "
+                    "deadline pulling in less-prepared learners, an acquisition or site migration? *The data "
+                    "can't say — but the timing is sharp enough to map against the company calendar.*")
+    with card(q2):
+        md(f"{chip('measured')} &nbsp;<span class='lbl' style='text-transform:none'>Late 2024 · acceleration"
+           "</span>")
+        st.markdown("A **second leg down** into the ~48% peak — the detector flags **Oct 2024**, and average "
+                    "rating falls hardest here.")
+        st.markdown("_Questions to trace internally:_ did a billing / refund or support backlog compound in "
+                    "Q4? Did a renewal or price change land then? Did review-invitation timing shift? *A "
+                    "compounding operations problem fits the shape — the data flags the timing, not the "
+                    "cause.*")
+    with card(q3):
+        md(f"{chip('measured')} &nbsp;<span class='lbl' style='text-transform:none'>Mid–late 2025 · ops shock"
+           "</span>")
+        st.markdown("**Reply speed collapses** from ~3 days to 8–20, formal break **Dec 2025** — well after "
+                    "the sentiment drop.")
+        st.markdown("_Questions to trace internally:_ a support-headcount cut, a tooling or queue change, or a "
+                    "volume spike without added staffing? This shift is the most recent and the most directly "
+                    "fixable. *Keep its root cause separate from the 2024 sentiment break.*")
+    st.write("")
+    note("<b>Why we stop at questions.</b> Public review data can timestamp a shift precisely, but it cannot "
+         "identify an external cause — pinning the 2024 onset on any single event would be exactly the kind of "
+         "inflated causality this package avoids. The deliverable here is a <b>tight set of dates</b> to test "
+         "against what leadership already knows happened inside the business.")
+    footnote(
+        "<b>Method.</b> Break months come from a weighted mean-shift scan (maximizing |mean-after − "
+        "mean-before|, ≥4 months each side, search window ≥2022-01) run independently on negative share, "
+        "average rating, and median reply lag; the March-2024 onset is a fixed pre/post segment comparison "
+        "(n=2,054 vs 2,147). Plotted points use months with ≥20 reviews. Dates are <b>measured</b>; candidate "
+        "causes are <b>unverified hypotheses</b> for internal validation, not findings.")

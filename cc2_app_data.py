@@ -188,6 +188,34 @@ def resolution_gap():
             for k in g.index}
 
 
+# ----------------------------------------------------------------- CC1 · trends / inflection points
+@functools.lru_cache(maxsize=1)
+def _monthly_metrics_raw():
+    return _csv("CC1_monthly_metrics.csv")
+
+
+def monthly_metrics(min_n=20, since="2023-01"):
+    """Monthly rating / negative-share / reply-lag series, filtered to months with enough
+    reviews to mean something (small-n months are dropped, not smoothed). Used by the
+    Inflection-points tab. Returns df[month, n, avg_rating, neg_share, reply_rate, median_reply_lag]."""
+    m = _monthly_metrics_raw()
+    return m[(m["month"] >= since) & (m["n"] >= min_n)].sort_values("month").reset_index(drop=True)
+
+
+@functools.lru_cache(maxsize=1)
+def change_points():
+    """Detected mean-shift break months (weighted max |after-before|, ≥4 mo/side, window ≥2022-01)
+    plus the pre-/post-2024-03 segment means. Returns the raw CC1 change-point table."""
+    return _csv("CC1_change_point_table.csv")
+
+
+def change_point(metric):
+    """One change-point row by metric name (e.g. 'neg_share', 'avg_rating', 'median_reply_lag')."""
+    cp = change_points()
+    row = cp[cp["metric"] == metric]
+    return row.iloc[0].to_dict() if len(row) else None
+
+
 # ================================================================= self-test
 if __name__ == "__main__":
     results = []
@@ -234,6 +262,16 @@ if __name__ == "__main__":
           rg["actionable"]["value"] == 1953 and rg["specific_remedy_in_negatives"]["value"] == 11,
           f"actionable={rg['actionable']['pct_of_neg']:.1%} "
           f"specific|neg={rg['specific_remedy_in_negatives']['pct_of_neg']:.2%}")
+
+    mm = monthly_metrics()
+    check("monthly_metrics loads (≥30 usable months since 2023, neg_share present)",
+          len(mm) >= 30 and mm["neg_share"].notna().all(), f"rows={len(mm)}")
+
+    cp_neg = change_point("neg_share")
+    check("neg_share break detected at 2024-10 (0.19→0.36)",
+          cp_neg and cp_neg["break_month"] == "2024-10" and abs(cp_neg["mean_after"] - 0.363) < 0.01,
+          f"{cp_neg['break_month'] if cp_neg else '—'}: {cp_neg['mean_before']:.2f}→{cp_neg['mean_after']:.2f}"
+          if cp_neg else "missing")
 
     # widget extremes don't break the index (monotone-down should survive any weighting)
     neg_only = rhi_annual({**RHI_WEIGHTS, "neg_share": 100, "severity_rate": 0, "reply_lag": 0,

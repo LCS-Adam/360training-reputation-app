@@ -180,12 +180,12 @@ def chart_h1(full):
     ax.axhspan(95, 102, color=GREEN, alpha=0.06)
     ax.axhspan(90, 95, color=ORANGE, alpha=0.07)
     ax.axhspan(60, 90, color=RED, alpha=0.06)
-    ax.plot(full["month"], full["RHI"], color=GRAY, lw=1, alpha=0.5, label="RHI (monthly)")
-    ax.plot(full["month"], full["rhi_3mo"], color=NAVY, lw=2.6, label="RHI (3-mo)")
+    ax.plot(full["month"], full["RHI"], color=GRAY, lw=1, alpha=0.5, label="Reputation Health (monthly)")
+    ax.plot(full["month"], full["rhi_3mo"], color=NAVY, lw=2.6, label="Reputation Health (3-month avg)")
     for thr, name in [(95, "watch"), (90, "concern"), (85, "alert")]:
         ax.axhline(thr, color=GRAY, ls=":", lw=0.8)
         ax.text(0.2, thr + 0.3, name, fontsize=7, color=GRAY)
-    for ev, lab in [("2024-03", "sentiment\ndecline onset"), ("2024-10", "CP (detected)")]:
+    for ev, lab in [("2024-03", "sentiment\ndecline onset"), ("2024-10", "change point\n(detected)")]:
         if ev in set(full["month"]):
             x = list(full["month"]).index(ev)
             ax.axvline(x, color=RED, ls="--", lw=1)

@@ -33,3 +33,9 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
+
+# ---- office lock/temp files ----
+~$*
+
+# ---- local-only methods study companion (keep out of the public repo) ----
+docs/METHODS_EXPLAINED.md
