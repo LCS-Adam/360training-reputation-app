@@ -1,0 +1,35 @@
+# ---- secrets (never commit) ----
+*.env
+.env
+**/anthropic*.env
+**/*secret*
+**/*apikey*
+
+# ---- CONFIDENTIAL source material — do NOT publish ----
+00_source_materials/
+
+# ---- AI-process / planning meta — keep local, NOT in the public repo ----
+CLAUDE.md
+360training — Final Streamlined Multi-.md
+
+# ---- other multi-LLM pipeline stages (not part of the app) ----
+02_gemini_outputs/
+03_grok_outputs/
+04_claude_max_outputs/
+05_notebooklm_outputs/
+06_chatgpt_outputs/
+07_final_assets/360training_Analytics_Report.pdf
+07_final_assets/360training_Exec_Deck.pptx
+
+# ---- large intermediate artifacts the app does NOT read ----
+01_analytics_outputs/CC2_review_extractions.csv
+01_analytics_outputs/CC2_extraction_ledger.jsonl
+01_analytics_outputs/CC2_pilot_extractions.csv
+01_analytics_outputs/CC2_gold_set.csv
+
+# ---- python / env ----
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store

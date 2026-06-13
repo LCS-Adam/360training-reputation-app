@@ -1,0 +1,12 @@
+# CC2-H RHI alert thresholds. Applied to the 3-MONTH ROLLING MEAN, never single
+# months (50-90 reviews/mo => single-month moves are within noise).
+rolling_window_months: 3
+anchor: "2023 = 100 (frozen reference; mean+sigma from 2023 distribution)"
+thresholds:
+  watch: 95
+  concern: 90
+  alert: 85
+notes: >
+  RHI = 100 - 10 * weighted-mean capped-z deterioration vs 2023. Lower = worse.
+  Each component z is winsorized at +/-3 so no single low-variance component
+  (e.g. reply-lag) can hijack the index.

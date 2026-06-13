@@ -1,0 +1,21 @@
+# Editorial/technical look (matched to reference): neutral greys + indigo accent, near-black text.
+#   canvas #c9c9cf · sidebar #cfcfd4 · boxes/widgets #efeff0 · accent #4e42e4 · ink #1d1d25
+[theme]
+base = "light"
+primaryColor = "#4e42e4"             # indigo accent
+backgroundColor = "#c9c9cf"          # neutral grey canvas
+secondaryBackgroundColor = "#efeff0" # light boxes / widgets
+textColor = "#1d1d25"                # near-black — high contrast, never washes out
+linkColor = "#4e42e4"
+borderColor = "#d8d8de"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "0.4rem"
+font = "sans-serif"
+
+[theme.sidebar]
+backgroundColor = "#cfcfd4"
+secondaryBackgroundColor = "#e2e2e6"
+
+[client]
+toolbarMode = "minimal"

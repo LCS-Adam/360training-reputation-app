@@ -1,0 +1,11 @@
+,billing_refund,support_service,phone_automation,language_barrier,offshore,exam_test_glitch,certificate_reporting,access_expiration,scam_fraud,course_content
+billing_refund,351.0,114.0,10.0,0.0,3.0,50.0,78.0,29.0,56.0,15.0
+support_service,114.0,477.0,16.0,3.0,9.0,89.0,90.0,58.0,39.0,34.0
+phone_automation,10.0,16.0,44.0,1.0,1.0,11.0,9.0,3.0,5.0,13.0
+language_barrier,0.0,3.0,1.0,6.0,1.0,1.0,1.0,2.0,0.0,2.0
+offshore,3.0,9.0,1.0,1.0,12.0,3.0,1.0,2.0,2.0,0.0
+exam_test_glitch,50.0,89.0,11.0,1.0,3.0,278.0,43.0,26.0,13.0,42.0
+certificate_reporting,78.0,90.0,9.0,1.0,1.0,43.0,383.0,32.0,33.0,28.0
+access_expiration,29.0,58.0,3.0,2.0,2.0,26.0,32.0,154.0,16.0,10.0
+scam_fraud,56.0,39.0,5.0,0.0,2.0,13.0,33.0,16.0,140.0,10.0
+course_content,15.0,34.0,13.0,2.0,0.0,42.0,28.0,10.0,10.0,172.0

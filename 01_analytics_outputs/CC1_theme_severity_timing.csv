@@ -1,0 +1,11 @@
+theme,n,n_too_small,share_of_all,mean_star,pct_negative,share_of_all_negative,severity_score,total_neg_mentions,baseline_2023_q_avg,first_inflection_quarter,peak_quarter,peak_q_neg_mentions
+offshore,12,True,0.0011,1.0,1.0,0.0054,92.0,12,1.2,,2018Q3,2
+scam_fraud,149,False,0.0141,1.2,0.9396,0.0635,86.8,139,3.8,2024Q3,2025Q4,12
+billing_refund,376,False,0.0355,1.27,0.9335,0.1591,85.8,349,13.5,2025Q1,2025Q1,23
+access_expiration,194,False,0.0183,1.75,0.7938,0.0698,73.6,152,5.2,2024Q4,2024Q4,13
+support_service,642,False,0.0606,1.97,0.743,0.2162,68.8,476,13.0,2024Q1,2024Q2,28
+exam_test_glitch,458,False,0.0432,2.22,0.607,0.126,58.6,277,10.5,2025Q2,2021Q1,21
+phone_automation,80,False,0.0075,2.35,0.55,0.0199,54.2,42,1.3,2025Q3,2021Q1,4
+course_content,345,False,0.0325,2.6,0.4986,0.078,49.1,172,6.2,2025Q1,2020Q3,10
+certificate_reporting,889,False,0.0839,3.11,0.4308,0.1736,41.0,382,12.0,2024Q4,2024Q4,28
+language_barrier,19,True,0.0018,3.11,0.3158,0.0027,34.1,6,1.2,,2016Q3,2

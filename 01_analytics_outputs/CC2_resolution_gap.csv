@@ -1,0 +1,6 @@
+metric,value,pct_of_neg
+negative_reviews,2206,1.0
+actionable,1953,0.885312783318223
+requested_resolution,1608,0.728921124206709
+specific_remedy_in_negatives,11,0.004986400725294651
+specific_remedy_all_reviews,23,0.0021696066408829354

@@ -1,0 +1,255 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "temperature": 0,
+  "output": "forced tool_use",
+  "tool": {
+    "name": "record_review_analysis",
+    "description": "Record the structured analysis of exactly one customer review. Base every field ONLY on the review text and the company's reply; never invent details. Prefer 'unknown'/'unclear'/'none'/null over guessing.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "primary_root_cause": {
+          "type": "string",
+          "enum": [
+            "billing_refund",
+            "support_service",
+            "phone_automation",
+            "language_barrier",
+            "offshore",
+            "exam_test_glitch",
+            "certificate_reporting",
+            "access_expiration",
+            "scam_fraud",
+            "course_content",
+            "seat_time_timer",
+            "pricing_value",
+            "platform_usability",
+            "proctoring",
+            "positive_experience",
+            "other",
+            "unclear"
+          ],
+          "description": "Single dominant driver of the experience. Use 'positive_experience' for satisfied reviews."
+        },
+        "primary_root_cause_confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "secondary_themes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "billing_refund",
+              "support_service",
+              "phone_automation",
+              "language_barrier",
+              "offshore",
+              "exam_test_glitch",
+              "certificate_reporting",
+              "access_expiration",
+              "scam_fraud",
+              "course_content",
+              "seat_time_timer",
+              "pricing_value",
+              "platform_usability",
+              "proctoring",
+              "positive_experience",
+              "other",
+              "unclear"
+            ]
+          },
+          "description": "0-4 other clearly-present themes. Exclude the primary; never list positive_experience here."
+        },
+        "product_line": {
+          "type": "string",
+          "enum": [
+            "osha_safety",
+            "real_estate",
+            "food_handler_safety",
+            "tabc_alcohol",
+            "notary",
+            "cosmetology_beauty",
+            "hvac_trades",
+            "insurance",
+            "healthcare_ce",
+            "workforce_hr_compliance",
+            "driver_ed",
+            "other",
+            "unknown"
+          ],
+          "description": "Course/credential category. 'unknown' if the review gives no signal."
+        },
+        "product_line_confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "regulator_or_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Any named regulator or US state/jurisdiction (e.g. 'OSHA', 'Texas', 'California DRE'), else null."
+        },
+        "dollar_amount_mentioned": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Single most relevant USD figure the reviewer cites (e.g. a disputed charge). Number only, else null."
+        },
+        "refund_requested": {
+          "type": "boolean"
+        },
+        "resolution_requested": {
+          "type": "string",
+          "enum": [
+            "refund",
+            "access_extension",
+            "certificate_or_record",
+            "technical_fix",
+            "human_contact",
+            "escalation_regulator",
+            "none",
+            "unclear"
+          ]
+        },
+        "resolution_offered_in_reply": {
+          "type": "string",
+          "enum": [
+            "specific_remedy",
+            "generic_apology",
+            "escalation_only",
+            "none",
+            "no_reply"
+          ],
+          "description": "What the COMPANY REPLY offers. 'no_reply' if there is no reply."
+        },
+        "sentiment_intensity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "1=furious/harmed, 2=dissatisfied, 3=mixed/neutral, 4=satisfied, 5=delighted."
+        },
+        "is_actionable": {
+          "type": "boolean",
+          "description": "True ONLY if the review names a specific operational issue the company could fix."
+        },
+        "actionability_rationale": {
+          "type": "string",
+          "description": "<= 20 words."
+        },
+        "extraction_flags": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "too_short",
+            "non_english",
+            "off_topic",
+            "refusal"
+          ]
+        }
+      },
+      "required": [
+        "primary_root_cause",
+        "primary_root_cause_confidence",
+        "secondary_themes",
+        "product_line",
+        "product_line_confidence",
+        "regulator_or_state",
+        "dollar_amount_mentioned",
+        "refund_requested",
+        "resolution_requested",
+        "resolution_offered_in_reply",
+        "sentiment_intensity",
+        "is_actionable",
+        "actionability_rationale",
+        "extraction_flags"
+      ]
+    },
+    "cache_control": {
+      "type": "ephemeral"
+    }
+  },
+  "vocabularies": {
+    "primary_root_cause": [
+      "billing_refund",
+      "support_service",
+      "phone_automation",
+      "language_barrier",
+      "offshore",
+      "exam_test_glitch",
+      "certificate_reporting",
+      "access_expiration",
+      "scam_fraud",
+      "course_content",
+      "seat_time_timer",
+      "pricing_value",
+      "platform_usability",
+      "proctoring",
+      "positive_experience",
+      "other",
+      "unclear"
+    ],
+    "product_line": [
+      "osha_safety",
+      "real_estate",
+      "food_handler_safety",
+      "tabc_alcohol",
+      "notary",
+      "cosmetology_beauty",
+      "hvac_trades",
+      "insurance",
+      "healthcare_ce",
+      "workforce_hr_compliance",
+      "driver_ed",
+      "other",
+      "unknown"
+    ],
+    "resolution_requested": [
+      "refund",
+      "access_extension",
+      "certificate_or_record",
+      "technical_fix",
+      "human_contact",
+      "escalation_regulator",
+      "none",
+      "unclear"
+    ],
+    "resolution_offered_in_reply": [
+      "specific_remedy",
+      "generic_apology",
+      "escalation_only",
+      "none",
+      "no_reply"
+    ]
+  },
+  "root_cause_to_cc1_crosswalk": {
+    "billing_refund": "billing_refund",
+    "support_service": "support_service",
+    "phone_automation": "phone_automation",
+    "language_barrier": "language_barrier",
+    "offshore": "offshore",
+    "exam_test_glitch": "exam_test_glitch",
+    "certificate_reporting": "certificate_reporting",
+    "access_expiration": "access_expiration",
+    "scam_fraud": "scam_fraud",
+    "course_content": "course_content",
+    "seat_time_timer": "(novel \u2014 CC2-E; not in CC1 keyword taxonomy)",
+    "pricing_value": "(extension \u2014 overlaps CC1 course_content/billing_refund)",
+    "platform_usability": "(extension \u2014 not in CC1 keyword taxonomy)",
+    "proctoring": "(extension \u2014 not in CC1 keyword taxonomy)",
+    "positive_experience": "(non-negative \u2014 no CC1 theme)",
+    "other": "(residual)",
+    "unclear": "(residual)"
+  },
+  "notes": "primary_root_cause keys 0-9 are CC1's exact theme keys for clean reconciliation; keys 10-13 are extensions the keyword taxonomy cannot see."
+}

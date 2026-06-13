@@ -1,0 +1,11 @@
+feature,perm_importance,perm_std,rank_gbt
+billing_refund,0.15523,0.00248,1
+scam_fraud,0.07182,0.00391,2
+support_service,0.05677,0.00224,3
+exam_test_glitch,0.01652,0.00139,4
+access_expiration,0.01365,0.00127,5
+course_content,0.00956,0.00098,6
+certificate_reporting,0.00515,0.00056,7
+offshore,0.00421,0.00086,8
+phone_automation,0.00101,0.00023,9
+language_barrier,0.00098,0.00028,10

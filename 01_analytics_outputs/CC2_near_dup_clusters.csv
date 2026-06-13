@@ -1,0 +1,94 @@
+cluster,n,median_words,kind,span_days,exemplar
+514,31,2,generic_short_BENIGN,2441,Great course 
+0,24,2,generic_short_BENIGN,2886,Very informative 
+91,22,3,generic_short_BENIGN,2401,Easy to navigate 
+35,20,2,generic_short_BENIGN,2922,Great experience 
+507,18,2,generic_short_BENIGN,2619,Great program
+988,17,2,generic_short_BENIGN,1916,Great training!
+843,16,3,generic_short_BENIGN,2265,User friendly & easy!
+129,15,3,generic_short_BENIGN,2664,easy to understand
+166,15,3,generic_short_BENIGN,2053,Easy to follow
+69,14,4,generic_short_BENIGN,1617,Good experience 
+38,13,3,generic_short_BENIGN,2429,It was great 
+1114,13,4,generic_short_BENIGN,1596,was very easy to use
+1340,12,2,generic_short_BENIGN,2080,Great service
+56,10,2,generic_short_BENIGN,2795,Very helpful
+453,10,3,generic_short_BENIGN,2542,Very gooood
+645,10,3,generic_short_BENIGN,2087,Fast and easy 
+944,10,2,generic_short_BENIGN,1645,Very good program!
+565,9,2,generic_short_BENIGN,2169,Great class !
+592,9,4,generic_short_BENIGN,2319,The course was very informative. 
+1035,9,5,generic_short_BENIGN,1870,Informative and easy to follow 
+1366,9,2,generic_short_BENIGN,2008,Excellent Service
+3014,9,2,generic_short_BENIGN,1151,Excellent course!!
+131,8,2,generic_short_BENIGN,2357,Excellent training 
+331,8,3,generic_short_BENIGN,2735,Very good course.
+121,7,4,generic_short_BENIGN,2791,Very easy to understand 
+237,7,1,generic_short_BENIGN,2765,Excellent ✍️
+302,7,2,generic_short_BENIGN,2428,very convenient
+338,7,3,generic_short_BENIGN,2336,Convenient 
+538,7,3,generic_short_BENIGN,1344,Everything was great
+626,7,3,generic_short_BENIGN,1392,"Noice!
+Quick!"
+695,7,3,generic_short_BENIGN,1892,Very good training
+1065,7,5,generic_short_BENIGN,1424,Ita a great learning experience
+1511,7,2,generic_short_BENIGN,1986,excellent program
+2303,7,2,generic_short_BENIGN,945,Good training
+253,6,3,generic_short_BENIGN,2777,Easy to learn 
+685,6,5,generic_short_BENIGN,2243,easy to understand and follow
+1164,6,2,generic_short_BENIGN,1924,Good service
+2620,6,2,generic_short_BENIGN,941,Very thorough
+2630,6,2,generic_short_BENIGN,649,Educational
+88,5,1,generic_short_BENIGN,806,Everything 
+162,5,2,generic_short_BENIGN,2291,Great information 
+164,5,4,generic_short_BENIGN,1907,Very informative and helpful.
+329,5,2,generic_short_BENIGN,2176,Good course
+578,5,5,generic_short_BENIGN,2558,"Easy to navigate.
+Easy to understand.
+
+"
+983,5,5,generic_short_BENIGN,2105,Easy to use and understand 
+1414,5,3,generic_short_BENIGN,971,Great and easy
+1797,5,3,generic_short_BENIGN,631,Everything good
+2298,5,3,generic_short_BENIGN,1019,"Great, thank you!"
+2919,5,4,generic_short_BENIGN,521,The course was great
+3942,5,2,generic_short_BENIGN,294,Great product
+6,4,3,generic_short_BENIGN,2111,The customer service was great!
+251,4,3,generic_short_BENIGN,582,Very easy to complete
+389,4,5,generic_short_BENIGN,2423,Easy and simple to use
+793,4,5,generic_short_BENIGN,1521,Clear and easy to understand
+1178,4,5,generic_short_BENIGN,1122,Great and easy to follow instructions
+1209,4,3,generic_short_BENIGN,1608,Very helpful information
+1270,4,2,generic_short_BENIGN,720,Good content.
+1409,4,5,generic_short_BENIGN,1199,It was a great experience.
+1718,4,1,generic_short_BENIGN,1746,Informative
+3862,4,2,generic_short_BENIGN,438,Excellent experience!
+94,3,3,generic_short_BENIGN,536,Easy-to-use 
+175,3,3,generic_short_BENIGN,908,Great!!!!!
+181,3,5,generic_short_BENIGN,1789,"Easy to follow course! 
+"
+220,3,3,generic_short_BENIGN,440,Ease of use.
+386,3,3,generic_short_BENIGN,1679,Quick and informative 
+686,3,3,generic_short_BENIGN,782,Easy and affordable 
+754,3,4,generic_short_BENIGN,1072,The experience was awesome.
+929,3,4,generic_short_BENIGN,406,"Easy to follow along
+"
+987,3,4,generic_short_BENIGN,1315,Learned a lot 
+1012,3,2,generic_short_BENIGN,1435,Good courses
+1200,3,2,generic_short_BENIGN,1270,Great content
+1495,3,2,generic_short_BENIGN,1216,Excellent information
+1798,3,4,generic_short_BENIGN,1115,It was very helpful
+2409,3,5,generic_short_BENIGN,822,This was very informative.
+2701,3,5,generic_short_BENIGN,421,Very easy to use and follow.
+2792,3,5,generic_short_BENIGN,370,"Easy to use, convenient"
+2808,3,2,generic_short_BENIGN,757,Awesome course
+3157,3,2,generic_short_BENIGN,488,Very professional !
+3403,3,2,generic_short_BENIGN,847,Great learning resourse
+3483,3,4,generic_short_BENIGN,367,Good very helpful
+4040,3,4,generic_short_BENIGN,1050,The course was very helpful
+66,12,6,longer_specific_REVIEW,2888,Easy to use and very informative 
+1553,6,6,longer_specific_REVIEW,1814,Very informative and easy to navigate.
+93,4,5,longer_specific_REVIEW,2344,Very easy to use and navigate.
+809,3,6,longer_specific_REVIEW,1558,Great information and easy to navigate
+1649,3,6,longer_specific_REVIEW,130,the course was very easy to understand
+2742,3,6,longer_specific_REVIEW,502,Thank you so much !!!

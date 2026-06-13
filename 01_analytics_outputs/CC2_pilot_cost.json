@@ -1,0 +1,15 @@
+{
+  "n": 150,
+  "parsed": 150,
+  "errors": 0,
+  "usage": {
+    "input_tokens": 379290,
+    "output_tokens": 48987,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  },
+  "pilot_cost_usd": 0.6242,
+  "per_review_usd": 0.004162,
+  "full_batch_estimate_usd": 22.06,
+  "n_full": 10601
+}

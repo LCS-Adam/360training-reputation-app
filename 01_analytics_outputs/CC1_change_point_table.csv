@@ -1,0 +1,8 @@
+metric,break_month,shift,mean_before,mean_after,method
+avg_rating,2024-10,-0.581,3.995,3.414,"weighted mean-shift (max |after-before|), >=4 mo/side, window>=2022-01"
+neg_share,2024-10,0.171,0.192,0.363,"weighted mean-shift (max |after-before|), >=4 mo/side, window>=2022-01"
+median_reply_lag,2025-12,7.959,3.184,11.143,"weighted mean-shift (max |after-before|), >=4 mo/side, window>=2022-01"
+avg_rating::pre_2024-03,2024-03,,,4.024,segment mean 2023-01..2024-02 (n=2054)
+neg_share::pre_2024-03,2024-03,,,0.1826,segment mean 2023-01..2024-02 (n=2054)
+avg_rating::post_2024-03,2024-03,,,3.5,segment mean 2024-03..2026-05 (n=2147)
+neg_share::post_2024-03,2024-03,,,0.34,segment mean 2024-03..2026-05 (n=2147)

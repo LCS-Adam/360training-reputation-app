@@ -1,0 +1,8 @@
+topic,n_mentions,n_too_small,pct_of_all,pct_negative,share_2023,share_2024_03_to_2025_12,growth_ratio_share,peak_quarter
+certificate_reporting,889,False,0.0839,0.431,0.0767,0.1202,1.57,2021Q1
+billing_refund,376,False,0.0355,0.934,0.0341,0.0699,2.05,2025Q1
+access_expiration,194,False,0.0183,0.794,0.0153,0.0358,2.33,2024Q4
+scam_fraud_chargeback,149,False,0.0141,0.94,0.0091,0.0358,3.93,2025Q4
+phone_automation,80,False,0.0075,0.55,0.008,0.0095,1.19,2022Q2
+language_barrier,19,True,0.0018,0.316,0.0006,0.0006,0.98,2016Q3
+offshore_costa_rica,12,True,0.0011,1.0,0.0,0.0017,,2018Q3

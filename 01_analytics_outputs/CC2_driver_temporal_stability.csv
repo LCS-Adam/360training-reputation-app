@@ -1,0 +1,11 @@
+theme,OR_pre2025,OR_2025plus,stable
+scam_fraud,14.37,19.05,True
+billing_refund,10.82,7.39,True
+access_expiration,2.5,4.43,True
+support_service,5.01,2.86,True
+exam_test_glitch,1.43,2.05,True
+course_content,1.56,2.05,True
+phone_automation,0.95,1.32,False
+offshore,3.22,1.27,True
+certificate_reporting,1.51,1.11,True
+language_barrier,0.69,0.63,True

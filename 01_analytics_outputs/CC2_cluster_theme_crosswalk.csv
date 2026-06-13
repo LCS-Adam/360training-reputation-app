@@ -1,0 +1,15 @@
+topic,size,top_words,dominant_theme,overlap_pct,novelty_flag,neg_share
+0,260,"course, courses, company, service, money, customer, horrible, training",support_service,0.312,False,1.0
+1,197,"proctor, exam, test, food, course, time, took, just",certificate_reporting,0.299,True,1.0
+2,193,"hours, time, timer, long, slides, read, course, hour",certificate_reporting,0.088,True,1.0
+3,188,"certificate, course, completed, training, affidavit, completion, certification, ce",certificate_reporting,0.734,False,1.0
+4,184,"test, exam, time, final, course, hours, final exam, questions",exam_test_glitch,0.293,True,1.0
+5,177,"customer, service, customer service, company, support, help, horrible, use",support_service,0.407,False,1.0
+6,166,"questions, test, exam, answer, quizzes, covered, course, material",course_content,0.229,True,1.0
+7,142,"information, material, voice, course, training, lesson, videos, boring",course_content,0.176,True,1.0
+8,134,"360, training, 360 training, 360training, course, time, company, customer",support_service,0.358,False,1.0
+9,133,"estate, real estate, real, course, exam, state, courses, license",certificate_reporting,0.331,False,1.0
+10,122,"osha, 30, osha 30, course, hours, 10, time, training",support_service,0.221,True,1.0
+11,121,"refund, email, customer, service, course, days, customer service, told",billing_refund,0.579,False,1.0
+12,104,"card, osha, received, dol, replacement, mail, company, cards",support_service,0.231,True,1.0
+13,21,"sst, sst card, card, months, received, month, nyc, update",support_service,0.19,True,1.0

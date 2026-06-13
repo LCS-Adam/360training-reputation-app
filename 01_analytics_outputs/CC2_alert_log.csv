@@ -1,0 +1,7 @@
+month,band,rhi_3mo,rhi_raw,top_driver,top_driver_points,provisional
+2023-01,watch,90.3,90.3,neg_share,5.5,False
+2024-05,watch,93.1,101.8,neg_share,3.3,False
+2024-11,concern,89.2,84.4,neg_share,9.0,False
+2025-04,watch,90.1,88.2,neg_share,7.5,False
+2025-05,concern,88.7,85.4,neg_share,9.0,False
+2025-09,alert,84.8,81.1,neg_share,9.0,False

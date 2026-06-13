@@ -1,0 +1,4 @@
+scenario,mix_model_implied,delta_vs_statusquo,anchored_neg_share,caveat
+status_quo (no revert),0.2842,-0.0057,0.3369,"DELTA only is used (mix omits co-occurrence + 42% untagged); anchored to observed; associational, not causal"
+half revert to 2023,0.2494,-0.0405,0.3021,"DELTA only is used (mix omits co-occurrence + 42% untagged); anchored to observed; associational, not causal"
+full revert to 2023,0.2043,-0.0856,0.257,"DELTA only is used (mix omits co-occurrence + 42% untagged); anchored to observed; associational, not causal"

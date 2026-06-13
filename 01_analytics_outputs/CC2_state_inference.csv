@@ -1,0 +1,8 @@
+state,n,neg_share,dominant_line,n_too_small
+TX,146,0.356,tabc_alcohol,False
+CA,16,0.938,real_estate,False
+NY,13,0.923,real_estate,False
+GA,8,0.75,real_estate,True
+AZ,5,0.8,real_estate,True
+FL,3,0.333,real_estate,True
+NV,2,1.0,food_handler,True

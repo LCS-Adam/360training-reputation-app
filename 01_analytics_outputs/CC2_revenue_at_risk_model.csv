@@ -1,0 +1,8 @@
+parameter,low,base,high,type,source
+annual_online_revenue_$,20000000.0,50000000.0,120000000.0,COMPANY-placeholder,ILLUSTRATIVE — replace
+exposure_fraction,0.15,0.3,0.5,COMPANY-placeholder,"share of revenue from review-consulting, non-mandated buyers"
+review_consult_rate,0.65,0.75,0.8,EXTERNAL-sourced,BrightLocal 2024 (~75%)
+elasticity_per_star,0.05,0.07,0.09,EXTERNAL-sourced,Luca HBS WP 12-016 (5-9%/star)
+mandated_context_discount,0.3,0.55,0.8,JUDGMENT,haircut: compliance training is often mandated/B2B -> more inelastic than restaurants
+star_drop,0.533668737414005,0.533668737414005,0.9048804903972116,INTERNAL-measured,"CC1: -0.53 sustained (base/low), -0.91 Q4-2024 trough (high)"
+annual_fix_cost_$,300000.0,1000000.0,2000000.0,COMPANY-placeholder,ILLUSTRATIVE — replace

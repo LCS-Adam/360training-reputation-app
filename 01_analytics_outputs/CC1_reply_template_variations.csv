@@ -1,0 +1,9 @@
+template_cluster,n_replies,share_of_replies,personalization_rate,remedy_offer_rate,apology_rate,escalation_only_rate,apology_only_rate,mean_reply_words,exemplar
+2,2772,0.2859,0.0,0.0,0.0,0.0,0.0,17.0,"Hi Richard,  Thank you for leaving feedback. We love hearing when our customers have a great experience! "
+7,2423,0.2499,0.021,0.15,0.249,0.054,0.078,31.9,"Hi,  Thank you for leaving feedback. We appreciate learning when our customers have a great experience!"
+0,1288,0.1329,0.0,0.0,0.0,0.0,0.0,23.2,We're so glad to hear that you had a positive experience. Thank you for taking the time to share your feedback!
+5,976,0.1007,0.001,0.0,0.0,0.0,0.0,28.7,"Hi Christi,  Thanks for leaving us a review. We hope you continue to think of us for your future training needs. "
+1,955,0.0985,0.0,0.988,0.986,0.01,0.001,57.7,"Hi Krystian,  Thank you for your feedback. We are sorry about the problems you experienced with your training course. We strive to provide a positive training experience and would like the opportunity to resolve your issues. If you would not mind, can you email CustomerCare@360training.com with the "
+3,580,0.0598,0.003,0.005,0.003,0.002,0.003,36.1,"Hi,  We strive to improve and thank you for the feedback. We hope you will continue to consider us for your future training needs."
+6,419,0.0432,0.002,0.005,0.01,0.983,0.0,46.6,"Hi Melba,  Thank you for taking the time to review us. We have shared your valued feedback with  management for further review. We invite you to email us at customercare@360training.com to further discuss. Thank you and we look forward to serving you in the future. "
+4,282,0.0291,0.0,0.986,0.011,0.014,0.0,44.6,"Hi William,  We appreciate you taking the time to alert us to these issues so that we can improve and fix the problem. Please send a message to CustomerCare@360training.com if you need any further assistance. Thank you, and we look forward to receiving your message. "

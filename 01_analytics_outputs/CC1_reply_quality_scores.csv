@@ -1,0 +1,7 @@
+metric,n,personalization_rate,remedy_offer_rate,apology_rate,escalation_only_rate,apology_only_rate,mean_reply_words,distinct_templates_k,dominant_template_share
+ALL,9695,0.006,0.164,0.16,0.058,0.02,29.9,8,0.286
+star_1,1512,0.013,0.747,0.786,0.123,0.075,54.9,,
+star_2,395,0.01,0.559,0.514,0.218,0.076,48.7,,
+star_3,634,0.008,0.27,0.199,0.274,0.046,40.9,,
+star_4,1416,0.004,0.037,0.018,0.058,0.01,26.7,,
+star_5,5738,0.004,0.003,0.002,0.005,0.001,21.7,,

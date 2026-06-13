@@ -1,0 +1,11 @@
+# Runtime dependencies for the live Streamlit app (07_final_assets/app.py).
+# These are the only packages the app imports at runtime; the heavier analysis
+# libs (scipy, statsmodels, scikit-learn, sentence-transformers, reportlab,
+# python-pptx) are NOT needed to serve the app.
+# Needs Python 3.11+ (numpy 2.x / pandas 3.x). On Streamlit Community Cloud set
+# the Python version to 3.12 or 3.13 in the app's Advanced settings.
+streamlit==1.58.0
+pandas==3.0.3
+numpy==2.4.6
+plotly==6.8.0
+matplotlib==3.11.0
