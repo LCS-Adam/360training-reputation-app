@@ -692,15 +692,28 @@ with tabs[5]:
                      help="Break-even conversion lift = annual fix cost ÷ exposed revenue, where exposed "
                           "revenue = annual revenue × exposure fraction × review-consult rate. No borrowed "
                           "elasticity needed — only your own numbers.")
+        # Row-major + numbered so the funnel reads 1→2→3→4 however the eye travels:
+        #   revenue → (of that) who read reviews → (of those) who weigh reviews → cost to fix.
         cc1, cc2 = st.columns(2)
-        rev = cc1.slider("Annual online revenue ($M)", 5.0, 200.0,
-                         float(base["annual_online_revenue_$"]) / 1e6, 5.0)
-        exp = cc1.slider("Share of revenue from customers who read reviews", 0.05, 0.60,
-                         float(base["exposure_fraction"]), 0.01)
-        cons = cc2.slider("Of those, share who weigh reviews heavily", 0.50, 0.90,
-                          float(base["review_consult_rate"]), 0.01)
-        fix = cc2.slider("Annual cost to fix the reputation problem ($M)", 0.1, 3.0,
-                         float(base["annual_fix_cost_$"]) / 1e6, 0.1)
+        rev = cc1.slider("1 · Annual online revenue ($M)", 5.0, 200.0,
+                         float(base["annual_online_revenue_$"]) / 1e6, 5.0,
+                         help="Your yearly revenue from online course sales — the base the whole "
+                              "calculation scales from. Slide it up and more dollars sit downstream of "
+                              "reputation, so a smaller conversion lift is enough to break even.")
+        exp = cc2.slider("2 · Of that, the share from customers who read reviews", 0.05, 0.60,
+                         float(base["exposure_fraction"]), 0.01,
+                         help="The fraction of that revenue coming from buyers who check reviews before "
+                              "purchasing. Higher = more revenue is exposed to reputation, which lowers "
+                              "the break-even lift.")
+        cons = cc1.slider("3 · Of those, the share who weigh reviews heavily", 0.50, 0.90,
+                          float(base["review_consult_rate"]), 0.01,
+                          help="Among the review-readers above, how many treat reviews as a real "
+                               "deciding factor. Higher = more revenue genuinely swayed by reputation, "
+                               "so the fix breaks even on a smaller lift.")
+        fix = cc2.slider("4 · Annual cost to fix the reputation problem ($M)", 0.1, 3.0,
+                         float(base["annual_fix_cost_$"]) / 1e6, 0.1,
+                         help="What you'd spend per year on the fix (support, refunds, process changes). "
+                              "A bigger budget has to be earned back by a larger conversion lift.")
 
         x_be = D.breakeven(rev * 1e6, exp, cons, fix * 1e6)
         rlo, rhi = D.recoverable()
@@ -762,10 +775,25 @@ with tabs[6]:
                           "component scores. With the default weights it reproduces the official index exactly.")
         st.caption("The default weights were fixed *before* looking at the 2024 data. Re-weight them however "
                    "you like — the decline persists. That robustness is the whole point.")
+        RHI_HELP = {
+            "neg_share": "How much the share of 1–2★ reviews counts in the score — the single biggest "
+                         "driver of the decline. Turn it down and the other signals have to carry the drop.",
+            "severity_rate": "How much it counts that the complaint mix shifted toward more severe "
+                             "problems (billing, support) rather than minor gripes.",
+            "reply_lag": "How much the company's reply speed counts. This degraded late (2025+), so "
+                         "raising it tests whether slow replies alone could explain the score.",
+            "reply_coverage": "How much the share of reviews that get any reply counts — more coverage "
+                              "helps the score.",
+            "integrity": "How much review-integrity flags count. The audit came back clean, so this "
+                         "barely moves the score no matter how high you push it.",
+            "trust_bleed": "How much product-line trust erosion counts (e.g. the real-estate and "
+                           "safety/OSHA lines bleeding fastest).",
+        }
         wc = st.columns(3)
         w = {}
         for i, comp in enumerate(RHI_COMPS):
-            w[comp] = wc[i % 3].slider(RHI_LABELS[comp], 0, 60, int(RHI_WEIGHTS[comp]), 1)
+            w[comp] = wc[i % 3].slider(RHI_LABELS[comp], 0, 60, int(RHI_WEIGHTS[comp]), 1,
+                                       help=RHI_HELP.get(comp))
         if sum(w.values()) == 0:
             st.warning("Set at least one weight above zero.")
         else:
