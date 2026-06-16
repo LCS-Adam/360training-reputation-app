@@ -89,8 +89,12 @@ div[data-testid="stMetric"]{ padding:.15rem .25rem; }
 div[data-testid="stMetricLabel"] p{ font-family:'IBM Plex Mono',monospace; text-transform:uppercase;
       letter-spacing:.07em; font-size:.70rem; color:var(--mut); font-weight:600; }
 div[data-testid="stMetricValue"]{ font-family:'IBM Plex Mono',monospace; font-weight:600;
-      color:var(--ink); letter-spacing:-.01em; }
-div[data-testid="stMetricDelta"]{ font-family:'IBM Plex Mono',monospace; color:#3b4049 !important; font-size:.74rem; }
+      color:var(--ink); letter-spacing:-.015em; font-size:1.7rem; line-height:1.15; }
+/* deltas here are descriptive captions, not directional changes — drop the misleading up/down
+   arrow and the gap it leaves, keep only the gray sub-label text */
+div[data-testid="stMetricDelta"]{ font-family:'IBM Plex Mono',monospace; color:#3b4049 !important;
+      font-size:.74rem; gap:0 !important; }
+div[data-testid="stMetricDelta"] svg{ display:none !important; }
 /* chips — mono uppercase, per type */
 .chip{ font-family:'IBM Plex Mono',monospace; display:inline-block; padding:2px 7px; border-radius:3px;
        font-size:.62rem; font-weight:600; letter-spacing:.05em; vertical-align:middle; text-transform:uppercase; }
@@ -123,7 +127,9 @@ div[data-testid="stPlotlyChart"]{ background:#ffffff; border:1px solid #d6d6dc; 
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p{ color:#3b4049 !important; }
 #MainMenu, footer{ visibility:hidden; }
 [data-testid="stToolbar"]{ display:none; }
-section[data-testid="stSidebar"]{ width:312px !important; }
+/* pin all three so Safari's flexbox can't collapse the sidebar to zero width (a known quirk
+   when only `width` is forced) — keeps the panel rendered in Safari, not just Chrome */
+section[data-testid="stSidebar"]{ width:312px !important; min-width:312px !important; max-width:312px !important; }
 /* sidebar secondary text — brighter than default so the light-gray copy stays legible */
 section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
 section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p{ color:#41454f !important;
@@ -491,10 +497,10 @@ with tabs[1]:
     st.write("")
 
     c = st.columns(4)
-    kpi(c[0], "Where sentiment sits now", "~32% negative", "down from a ~48% peak",
+    kpi(c[0], "Negative share now", "~32%", "down from a ~48% peak",
         help="The negative-review share is well off its late-2024/early-2025 peak (~48%, in Dec 2024) but "
              "still far above the pre-2024 baseline (~18%).")
-    kpi(c[1], "Pre-decline baseline", "~18% negative", "2023 and earlier",
+    kpi(c[1], "Pre-decline baseline", "~18%", "2023 and earlier",
         help="Where the negative share sat before the 2024 decline — the level a full recovery would return to.")
     kpi(c[2], "Forecast reliability (80%)", f"{cov['cov80']:.0%}", "target 80%", delta_color="off",
         help="We held back 53 past months and asked the model to forecast them. The real value landed inside "
